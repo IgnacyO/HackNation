@@ -108,14 +108,30 @@ function FirefighterList({
       </div>
 
       <div className="list-items">
-        {firefighters
-          .filter(ff => {
+        {(() => {
+          const filtered = firefighters.filter(ff => {
+            // Only show firefighters who are on mission
+            // Use strict check to handle undefined/null/0/false
+            if (ff.on_mission !== true) {
+              return false
+            }
+            
             // Filter by team
             if (teamFilter === 'all') return true
             if (teamFilter === 'none') return !ff.team || !ff.team.trim()
             return ff.team === teamFilter
           })
-          .map((ff) => {
+          
+          // Debug logging
+          console.log('FirefighterList:', {
+            total: firefighters.length,
+            onMission: firefighters.filter(ff => ff.on_mission === true).length,
+            notOnMission: firefighters.filter(ff => ff.on_mission !== true).length,
+            filtered: filtered.length,
+            teamFilter
+          })
+          
+          return filtered.map((ff) => {
           const isSelected = selectedFirefighter === ff.id
           const vitals = ff.vitals
           const position = ff.position
@@ -163,7 +179,7 @@ function FirefighterList({
               )}
             </div>
           )
-        })}
+        })})()}
       </div>
     </div>
   )

@@ -225,12 +225,19 @@ function FirefightersView({ onFirefighterClick }) {
                           <i className="bi-exclamation-triangle-fill"></i> ZAGROŻONY
                         </span>
                       )}
-                      {ff.on_mission && (
+                      {ff.on_mission === true ? (
                         <span className="badge" style={{
                           background: 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)',
                           color: 'white'
                         }}>
                           Na misji
+                        </span>
+                      ) : (
+                        <span className="badge" style={{
+                          background: 'linear-gradient(135deg, #6c757d 0%, #5a6268 100%)',
+                          color: 'white'
+                        }}>
+                          Poza misją
                         </span>
                       )}
                       {ff.team && (

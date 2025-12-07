@@ -173,12 +173,13 @@ class DataRetriever:
                         firefighter = Firefighter(
                             name=name or f'Strażak {badge_number}',
                             badge_number=badge_number,
-                            team=team or None
+                            team=team or None,
+                            on_mission=False  # New firefighters are not on mission by default
                         )
                         db.add(firefighter)
                         db.commit()
                         db.refresh(firefighter)
-                        print(f"Created firefighter {badge_number} with name: {firefighter.name}, team: {team or 'None'}")
+                        print(f"Created firefighter {badge_number} with name: {firefighter.name}, team: {team or 'None'}, on_mission=False")
                     else:
                         # Always update name if available and different (including if current is "Unknown")
                         if name and name.strip() and name != firefighter.name:
@@ -190,6 +191,9 @@ class DataRetriever:
                         if team and team.strip() and team != firefighter.team:
                             firefighter.team = team
                             db.commit()
+                        
+                        # IMPORTANT: Do NOT update on_mission here - it should only be changed manually via RFID scanner or API
+                        # This ensures that firefighters who are not on mission stay that way
                         
                         self.firefighter_map[tag_id] = firefighter.id
                     
@@ -414,12 +418,13 @@ class DataRetriever:
                         firefighter = Firefighter(
                             name=name or f'Strażak {badge_number}',
                             badge_number=badge_number,
-                            team=team or None
+                            team=team or None,
+                            on_mission=False  # New firefighters are not on mission by default
                         )
                         db.add(firefighter)
                         db.commit()
                         db.refresh(firefighter)
-                        print(f"Created firefighter {badge_number} with name: {firefighter.name}, team: {team}")
+                        print(f"Created firefighter {badge_number} with name: {firefighter.name}, team: {team}, on_mission=False")
                     
                     self.firefighter_map[tag_id] = firefighter.id
                     
@@ -442,6 +447,9 @@ class DataRetriever:
                 # Always update team if available
                 if team and team.strip() and team != firefighter.team:
                     firefighter.team = team
+                
+                # IMPORTANT: Do NOT update on_mission here - it should only be changed manually via RFID scanner or API
+                # This ensures that firefighters who are not on mission stay that way
                 
                 # Update position
                 position_data = sim_ff.get('position') or {}
@@ -566,6 +574,11 @@ class DataRetriever:
             all_db_firefighters = db.query(Firefighter).all()
             updated_firefighter_ids = set(self.firefighter_map.values())
             missing_firefighters = [ff for ff in all_db_firefighters if ff.id not in updated_firefighter_ids]
+            
+            # Debug: Log on_mission status after update
+            on_mission_count = sum(1 for ff in all_db_firefighters if ff.on_mission)
+            not_on_mission_count = len(all_db_firefighters) - on_mission_count
+            print(f"DEBUG: After update - {on_mission_count} on mission, {not_on_mission_count} not on mission")
             
             if missing_firefighters:
                 print(f"Note: {len(missing_firefighters)} firefighters in DB were not in API response")
@@ -871,12 +884,12 @@ class DataRetriever:
                         )
                         db.add(alert)
             
-            # Generate local alerts based on vitals
+            # Generate local alerts based on vitals (with diversity)
             self._generate_local_alerts(db)
             
             db.commit()
             
-            # Clean up old alerts - keep only last 50
+            # Clean up old alerts - keep only last 20
             self._cleanup_old_alerts(db)
         except Exception as e:
             print(f"Error updating alerts: {e}")
@@ -914,7 +927,8 @@ class DataRetriever:
                 
                 time_stationary = (datetime.utcnow() - stationary_since).total_seconds()
                 
-                if time_stationary >= 30:
+                # Increased threshold to 60 seconds to reduce false alarms
+                if time_stationary >= 60:  # Changed from 30 to 60
                     self._create_alert(db, firefighter_id, 'man_down')
             
             # Check for high heart rate
@@ -951,45 +965,75 @@ class DataRetriever:
                 self._create_alert(db, None, 'beacon_offline')
     
     def _cleanup_old_alerts(self, db: Session):
-        """Remove old alerts, keeping only the last 50 most recent ones"""
+        """Remove old alerts, keeping only the last 20 most recent ones"""
         try:
-            # Get total count of alerts
-            total_alerts = db.query(Alert).count()
+            # Get total count of unacknowledged alerts
+            total_alerts = db.query(Alert).filter(Alert.acknowledged == False).count()
             
-            if total_alerts > 50:
-                # Get the 50 most recent alerts (by timestamp, descending)
-                recent_alerts = db.query(Alert).order_by(desc(Alert.timestamp)).limit(50).all()
+            if total_alerts > 20:
+                # Get the 20 most recent unacknowledged alerts (by timestamp, descending)
+                recent_alerts = db.query(Alert).filter(
+                    Alert.acknowledged == False
+                ).order_by(desc(Alert.timestamp)).limit(20).all()
                 recent_alert_ids = {alert.id for alert in recent_alerts}
                 
-                # Delete all alerts that are not in the recent 50
+                # Delete all unacknowledged alerts that are not in the recent 20
                 deleted_count = db.query(Alert).filter(
+                    Alert.acknowledged == False,
                     ~Alert.id.in_(recent_alert_ids)
                 ).delete(synchronize_session=False)
                 
                 db.commit()
-                print(f"Cleaned up {deleted_count} old alerts, kept {len(recent_alerts)} most recent")
+                if deleted_count > 0:
+                    print(f"Cleaned up {deleted_count} old alerts, kept {len(recent_alerts)} most recent")
         except Exception as e:
             print(f"Error cleaning up old alerts: {e}")
             db.rollback()
                 
     def _create_alert(self, db: Session, firefighter_id: int, alert_type: str):
-        """Create an alert if it doesn't exist recently"""
+        """Create an alert if it doesn't exist recently and if there's diversity"""
         
-        recent_alert = db.query(Alert).filter(
+        # Check if this specific firefighter already has this alert type recently (180 seconds cooldown)
+        recent_alert_for_firefighter = db.query(Alert).filter(
             Alert.firefighter_id == firefighter_id,
+            Alert.alert_type == alert_type,
+            Alert.timestamp > datetime.utcnow() - timedelta(seconds=180),
+            Alert.acknowledged == False
+        ).first()
+        
+        if recent_alert_for_firefighter:
+            return  # Don't create duplicate alert for same firefighter
+        
+        # Check for global diversity - don't create same alert type if it was created recently (30 seconds)
+        # This ensures variety in alerts
+        recent_alert_same_type = db.query(Alert).filter(
             Alert.alert_type == alert_type,
             Alert.timestamp > datetime.utcnow() - timedelta(seconds=30),
             Alert.acknowledged == False
         ).first()
         
-        if not recent_alert:
+        if recent_alert_same_type:
+            return  # Don't create same alert type too frequently (diversity)
+        
+        # Check total number of unacknowledged alerts - limit to 20
+        total_unacknowledged = db.query(Alert).filter(
+            Alert.acknowledged == False
+        ).count()
+        
+        if total_unacknowledged >= 20:
+            # If we're at the limit, only allow critical alerts
             alert_info = ALERT_TYPES.get(alert_type, {'severity': 'warning', 'description': alert_type})
-            alert = Alert(
-                firefighter_id=firefighter_id,
-                alert_type=alert_type,
-                severity=alert_info['severity'],
-                message=alert_info['description'],
-                timestamp=datetime.utcnow()
-            )
-            db.add(alert)
+            if alert_info.get('severity') != 'critical':
+                return  # Don't create non-critical alerts if we're at limit
+        
+        # Create the alert
+        alert_info = ALERT_TYPES.get(alert_type, {'severity': 'warning', 'description': alert_type})
+        alert = Alert(
+            firefighter_id=firefighter_id,
+            alert_type=alert_type,
+            severity=alert_info['severity'],
+            message=alert_info['description'],
+            timestamp=datetime.utcnow()
+        )
+        db.add(alert)
 

@@ -45,12 +45,24 @@ def get_firefighters():
                 Vitals.firefighter_id == ff.id
             ).order_by(desc(Vitals.timestamp)).first()
             
+            # Get on_mission value - ensure it's a boolean
+            on_mission_value = getattr(ff, 'on_mission', None)
+            if on_mission_value is None:
+                on_mission_value = False
+            else:
+                # Convert to boolean if it's stored as string or int
+                on_mission_value = bool(on_mission_value) if on_mission_value not in (True, False) else on_mission_value
+            
+            # Debug: Log first few firefighters to verify on_mission values
+            if len(result) < 3:
+                print(f"API: Firefighter {ff.badge_number} ({ff.name}): on_mission = {on_mission_value} (type: {type(on_mission_value).__name__})")
+            
             ff_data = {
                 'id': ff.id,
                 'name': ff.name,
                 'badge_number': ff.badge_number,
                 'team': getattr(ff, 'team', None) or '',
-                'on_mission': getattr(ff, 'on_mission', False),
+                'on_mission': on_mission_value,
             }
             
             if latest_pos:

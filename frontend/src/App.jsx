@@ -59,22 +59,29 @@ function App() {
     // Load initial data
     loadData()
 
-    // Set up refresh interval (1.5 seconds)
-    const interval = setInterval(loadData, 1500)
+    // Set up refresh interval (5 seconds for alerts)
+    const interval = setInterval(loadData, 5000)
 
     return () => clearInterval(interval)
   }, [])
 
   const loadData = async () => {
     try {
+      console.log('Loading data...')
       const [firefightersData, alertsData] = await Promise.all([
         api.getFirefighters(),
         api.getAlerts()
       ])
-      setFirefighters(firefightersData)
-      setAlerts(alertsData)
+      console.log('Data loaded:', { 
+        firefighters: firefightersData?.length || 0, 
+        alerts: alertsData?.length || 0,
+        onMissionCount: firefightersData?.filter(ff => ff.on_mission === true).length || 0
+      })
+      setFirefighters(firefightersData || [])
+      setAlerts(alertsData || [])
     } catch (error) {
       console.error('Error loading data:', error)
+      console.error('Error details:', error.message, error.stack)
     }
   }
 

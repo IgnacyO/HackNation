@@ -124,8 +124,13 @@ function Map({
     }
   }, [showHistory, selectedFirefighter])
 
-  // Filter firefighters by current floor and team
+  // Filter firefighters by mission status, floor and team
   const visibleFirefighters = firefighters.filter(ff => {
+    // Only show firefighters who are on mission
+    if (ff.on_mission !== true) {
+      return false
+    }
+    
     if (!ff.position) {
       if (teamFilter === 'RIT' || (teamFilter !== 'all' && teamFilter !== 'none')) {
         const ffTeam = ff.team ? ff.team.trim() : ''
@@ -161,6 +166,16 @@ function Map({
     }
     
     return true
+  })
+  
+  // Debug: Log filtering results
+  console.log('Map filtering:', {
+    total: firefighters.length,
+    onMission: firefighters.filter(ff => ff.on_mission === true).length,
+    notOnMission: firefighters.filter(ff => ff.on_mission !== true).length,
+    visible: visibleFirefighters.length,
+    currentFloor,
+    teamFilter
   })
   
   // Debug: Log all RIT firefighters and why they're filtered
@@ -203,11 +218,15 @@ function Map({
       <MapContainer
         center={center}
         zoom={18}
+        minZoom={1}
+        maxZoom={25}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          maxZoom={25}
+          minZoom={1}
         />
         
         <MapUpdater building={building} currentFloor={currentFloor} />
@@ -298,10 +317,10 @@ function Map({
             center={[beacon.latitude, beacon.longitude]}
             radius={50}
             pathOptions={{
-              color: beacon.is_online ? 'rgba(0, 255, 0, 0.5)' : 'rgba(255, 0, 0, 0.5)',
-              fillColor: beacon.is_online ? 'rgba(0, 255, 0, 0.2)' : 'rgba(255, 0, 0, 0.2)',
+              color: beacon.is_online ? 'rgba(74, 222, 128, 0.4)' : 'rgba(255, 0, 0, 0.5)',
+              fillColor: beacon.is_online ? 'rgba(74, 222, 128, 0.15)' : 'rgba(255, 0, 0, 0.2)',
               fillOpacity: 0.3,
-              weight: 3
+              weight: 2
             }}
             eventHandlers={{
               click: () => onBeaconClick && onBeaconClick(beacon.id)
@@ -312,10 +331,10 @@ function Map({
             center={[beacon.latitude, beacon.longitude]}
             radius={10}
             pathOptions={{
-              color: beacon.is_online ? '#00ff00' : '#ff0000',
-              fillColor: beacon.is_online ? '#00ff00' : '#ff0000',
-              fillOpacity: 0.8,
-              weight: 3
+              color: beacon.is_online ? '#4ade80' : '#ff0000',
+              fillColor: beacon.is_online ? '#4ade80' : '#ff0000',
+              fillOpacity: 0.7,
+              weight: 2
             }}
             eventHandlers={{
               click: () => onBeaconClick && onBeaconClick(beacon.id)

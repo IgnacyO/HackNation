@@ -16,7 +16,7 @@ function AlertsView({ alertTypes, onFirefighterClick }) {
     const interval = setInterval(() => {
       loadAlerts()
       loadFirefighters()
-    }, 3000)
+    }, 8000)
     return () => clearInterval(interval)
   }, [severityFilter])
 
