@@ -2,6 +2,17 @@
 
 System monitorowania strażaków w czasie rzeczywistym z wykorzystaniem React + Vite (frontend) i Flask + SQLAlchemy (backend).
 
+## Zaimplementowane funkcje
+- Wizualizacja mapy 2D budynku z pozycjami strażaków
+- Wskaźnik kondygnacji (piętro) dla każdego strażaka
+- Panel parametrów: tętno, bateria, stan ruchu
+- Alarm MAN-DOWN po 30s bezruchu
+- Status beaconów na mapie
+- Lista strażaków z możliwością filtrowania (ID, imię, zespół, status, bateria) i szybkiego przejścia do widoku na mapie
+- Ekran szczegółów strażaka z ostatnimi alertami, trendem tętna i poziomu baterii oraz informacją o ostatniej pozycji i czasie kontaktu
+- Podstawowy widok aktywnych alertów
+- koncepcja działania w środowisku bez GPS/GSM
+
 ## Architektura
 
 - **Backend**: Python Flask + SQLAlchemy + SQLite
