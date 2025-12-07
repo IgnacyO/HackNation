@@ -54,41 +54,12 @@ Locero/
 
 ### Krok 1: Przygotowanie środowiska Python (Backend)
 
-1. **Utwórz wirtualne środowisko Python** (zalecane):
-
-**Windows:**
-```bash
-python -m venv venv
-```
-
-**Linux/Mac:**
-```bash
-python3 -m venv venv
-```
-
-2. **Aktywuj wirtualne środowisko**:
-
-**Windows (PowerShell):**
-```bash
-.\venv\Scripts\Activate.ps1
-```
-
-**Windows (CMD):**
-```bash
-venv\Scripts\activate.bat
-```
-
-**Linux/Mac:**
-```bash
-source venv/bin/activate
-```
-
-Po aktywacji w terminalu powinno pojawić się `(venv)` przed ścieżką.
-
-3. **Zainstaluj zależności Python**:
+**Zainstaluj zależności Python**:
 ```bash
 pip install -r requirements.txt
 ```
+
+**Uwaga:** Na systemach Linux/Mac może być konieczne użycie `pip3` zamiast `pip`.
 
 ### Krok 2: Przygotowanie Frontend
 
@@ -113,9 +84,7 @@ Aplikacja wymaga uruchomienia dwóch serwerów jednocześnie:
 
 #### Terminal 1 - Backend (API)
 
-1. **Upewnij się, że venv jest aktywne** (powinno być `(venv)` w terminalu)
-
-2. **Uruchom API** (z katalogu głównego projektu):
+1. **Uruchom API** (z katalogu głównego projektu):
 ```bash
 python run_api.py
 ```
@@ -132,7 +101,7 @@ API będzie dostępne pod adresem: `http://localhost:5000`
 
 #### Terminal 2 - Frontend
 
-1. **Otwórz nowy terminal** (venv nie jest potrzebne dla frontendu)
+1. **Otwórz nowy terminal**
 
 2. **Przejdź do katalogu frontend**:
 ```bash
@@ -156,26 +125,18 @@ Frontend będzie dostępny pod adresem: `http://localhost:5173` (lub inny port, 
 ## Szybki start (skrócona wersja)
 
 ```bash
-# 1. Utwórz i aktywuj venv
-python -m venv venv
-.\venv\Scripts\Activate.ps1  # Windows PowerShell
-# lub
-venv\Scripts\activate.bat     # Windows CMD
-# lub
-source venv/bin/activate     # Linux/Mac
-
-# 2. Zainstaluj zależności Python
+# 1. Zainstaluj zależności Python
 pip install -r requirements.txt
 
-# 3. Zainstaluj zależności Node.js
+# 2. Zainstaluj zależności Node.js
 cd frontend
 npm install
 cd ..
 
-# 4. Terminal 1 - Uruchom backend (z venv aktywnym)
+# 3. Terminal 1 - Uruchom backend
 python run_api.py
 
-# 5. Terminal 2 - Uruchom frontend (w nowym terminalu)
+# 4. Terminal 2 - Uruchom frontend (w nowym terminalu)
 cd frontend
 npm run dev
 ```
@@ -217,14 +178,12 @@ npm run dev
 ## Rozwiązywanie problemów
 
 ### Problem: "ModuleNotFoundError" lub "No module named 'flask'"
-**Rozwiązanie:** Upewnij się, że venv jest aktywne i zależności są zainstalowane:
+**Rozwiązanie:** Upewnij się, że zależności są zainstalowane:
 ```bash
-# Sprawdź czy venv jest aktywne (powinno być (venv) w terminalu)
-# Jeśli nie, aktywuj ponownie:
-.\venv\Scripts\Activate.ps1  # Windows PowerShell
-# Następnie zainstaluj zależności:
 pip install -r requirements.txt
 ```
+
+**Uwaga:** Na systemach Linux/Mac może być konieczne użycie `pip3` zamiast `pip`.
 
 ### Problem: "Port 5000 already in use"
 **Rozwiązanie:** Zamknij inne aplikacje używające portu 5000 lub zmień port w `run_api.py`:
@@ -248,13 +207,6 @@ app.run(debug=True, port=5001)  # Zmień na inny port
 - Baza danych SQLite jest tworzona automatycznie w katalogu `database/`
 - Wszyscy strażacy są domyślnie ustawieni jako aktywni w misji (`on_mission = True`)
 - Skaner RFID dostępny jest w widoku mapy (lewy górny róg) - można użyć trybu "Ręczne" do testowania bez portu COM
-
-## Dezaktywacja venv
-
-Po zakończeniu pracy, możesz dezaktywować wirtualne środowisko:
-```bash
-deactivate
-```
 
 ## Struktura portów
 
