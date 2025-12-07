@@ -61,6 +61,8 @@ pip install -r requirements.txt
 
 **Uwaga:** Na systemach Linux/Mac może być konieczne użycie `pip3` zamiast `pip`.
 
+**Uwaga dla użytkowników Windows PowerShell:** Jeśli podczas uruchamiania komend pojawia się błąd związany z Execution Policy, zobacz sekcję "Rozwiązywanie problemów" poniżej.
+
 ### Krok 2: Przygotowanie Frontend
 
 1. **Przejdź do katalogu frontend**:
@@ -199,6 +201,40 @@ app.run(debug=True, port=5001)  # Zmień na inny port
 
 ### Problem: Baza danych nie jest tworzona
 **Rozwiązanie:** Upewnij się, że katalog `database/` istnieje i ma uprawnienia do zapisu. Baza danych jest tworzona automatycznie przy pierwszym uruchomieniu API.
+
+### Problem: Błędy związane z SQLAlchemy
+**Rozwiązanie:** Jeśli pojawiają się błędy związane z SQLAlchemy (np. import errors, deprecated warnings, lub problemy z połączeniem do bazy danych), warto zaktualizować SQLAlchemy do najnowszej wersji:
+```bash
+pip install --upgrade SQLAlchemy
+```
+
+### Problem: PowerShell blokuje wykonywanie skryptów (Execution Policy)
+**Rozwiązanie:** Jeśli podczas uruchamiania komend w PowerShell pojawia się błąd typu "running scripts is disabled on this system", musisz zmienić Execution Policy.
+
+**Opcja 1 - Tymczasowo dla bieżącej sesji (zalecane):**
+Uruchom PowerShell jako administrator i wykonaj:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+```
+
+**Opcja 2 - Trwale dla Twojego konta użytkownika:**
+Uruchom PowerShell jako administrator i wykonaj:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+**Opcja 3 - Bypass dla pojedynczego skryptu:**
+Możesz uruchomić komendy z pominięciem Execution Policy:
+```powershell
+powershell -ExecutionPolicy Bypass -Command "pip install -r requirements.txt"
+```
+
+**Opcja 4 - Użyj Command Prompt (CMD) zamiast PowerShell:**
+W CMD nie ma problemu z Execution Policy, możesz używać standardowych komend:
+```cmd
+pip install -r requirements.txt
+python run_api.py
+```
 
 ## Uwagi
 
