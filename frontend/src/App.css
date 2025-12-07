@@ -56,6 +56,21 @@
   }
 }
 
+@keyframes pulseSelected {
+  0%, 100% {
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.8), 0 0 0 6px rgba(255,215,0,0.4);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(255,215,0,0.9), 0 0 0 8px rgba(255,215,0,0.6);
+    transform: scale(1.1);
+  }
+}
+
+.firefighter-marker-selected div {
+  animation: pulseSelected 1.5s ease-in-out infinite;
+}
+
 @keyframes glow {
   0%, 100% {
     box-shadow: 0 0 5px var(--accent-red-glow);

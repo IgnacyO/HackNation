@@ -138,9 +138,9 @@ function RFIDScanner({ onScanSuccess }) {
   return (
     <div className="rfid-scanner" style={{
       position: 'absolute',
-      top: '10px',
+      bottom: '10px',
       left: '10px',
-      zIndex: 1000,
+      zIndex: 1001,
       background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
       border: '2px solid #c82333',
       borderRadius: '8px',
