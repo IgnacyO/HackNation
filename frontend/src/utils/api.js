@@ -72,6 +72,49 @@ export const api = {
     const response = await fetch(`${API_BASE_URL}/beacons/${beaconId}`);
     if (!response.ok) throw new Error('Failed to fetch beacon');
     return response.json();
+  },
+
+  async getFirefighterByBadge(badgeNumber) {
+    const response = await fetch(`${API_BASE_URL}/firefighters/by-badge/${badgeNumber}`);
+    if (!response.ok) throw new Error('Failed to fetch firefighter');
+    return response.json();
+  },
+
+  async addFirefighterToMissionByBadge(badgeNumber) {
+    const response = await fetch(`${API_BASE_URL}/firefighters/by-badge/${badgeNumber}/mission`, {
+      method: 'POST'
+    });
+    if (!response.ok) throw new Error('Failed to add firefighter to mission');
+    return response.json();
+  },
+
+  async getSerialPorts() {
+    const response = await fetch(`${API_BASE_URL}/rfid/ports`);
+    if (!response.ok) throw new Error('Failed to fetch serial ports');
+    return response.json();
+  },
+
+  async scanRFID(port, timeout = 1) {
+    const response = await fetch(`${API_BASE_URL}/rfid/scan`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ port, timeout })
+    });
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to scan RFID');
+    }
+    return response.json();
+  },
+
+  async closeSerialPort(port) {
+    const response = await fetch(`${API_BASE_URL}/rfid/close/${port}`, {
+      method: 'POST'
+    });
+    if (!response.ok) throw new Error('Failed to close serial port');
+    return response.json();
   }
 };
 

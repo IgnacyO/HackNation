@@ -58,7 +58,17 @@ function BeaconsView({ onBeaconClick }) {
   return (
     <div className="beacons-view p-4">
       <div className="d-flex justify-content-between align-items-center mb-3">
-        <h4>Wszystkie beacony ({filtered.length})</h4>
+        <h4 style={{ 
+          color: '#f5f5f5',
+          fontWeight: 'bold',
+          letterSpacing: '1px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}>
+          <i className="bi-broadcast-fill" style={{ color: '#c82333' }}></i>
+          Wszystkie beacony ({filtered.length})
+        </h4>
         <div className="d-flex gap-2">
           <input
             type="text"
@@ -91,33 +101,60 @@ function BeaconsView({ onBeaconClick }) {
       </div>
       <div className="list-group">
         {paginatedBeacons.length === 0 ? (
-          <div className="list-group-item text-muted">Brak beaconów</div>
+          <div className="list-group-item" style={{ color: '#999999', textAlign: 'center', padding: '2rem' }}>
+            Brak beaconów
+          </div>
         ) : (
           paginatedBeacons.map((beacon) => (
             <div
               key={beacon.id}
-              className="list-group-item list-group-item-action cursor-pointer"
+              className="list-group-item cursor-pointer"
               onClick={() => onBeaconClick && onBeaconClick(beacon.id)}
-              style={{ cursor: 'pointer' }}
+              style={{ 
+                cursor: 'pointer',
+                background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+                border: '1px solid #333333',
+                borderRadius: '8px',
+                marginBottom: '0.5rem',
+                color: '#f5f5f5',
+                transition: 'all 0.3s ease',
+                animation: 'fadeIn 0.4s ease-out'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateX(5px)'
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)'
+                e.currentTarget.style.borderColor = '#c82333'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateX(0)'
+                e.currentTarget.style.boxShadow = 'none'
+                e.currentTarget.style.borderColor = '#333333'
+              }}
             >
               <div className="d-flex justify-content-between align-items-start">
                 <div>
-                  <strong>{beacon.name}</strong>
-                  <div className="small">ID: {beacon.beacon_id}</div>
-                  <div className="small">Piętro: {beacon.floor}</div>
+                  <strong style={{ color: '#f5f5f5' }}>{beacon.name}</strong>
+                  <div className="small" style={{ color: '#999999' }}>ID: {beacon.beacon_id}</div>
+                  <div className="small" style={{ color: '#999999' }}>Piętro: {beacon.floor}</div>
                 </div>
                 <div className="text-end">
-                  <span className={beacon.is_online ? 'badge bg-success' : 'badge bg-danger'}>
-                    {beacon.is_online ? '🟢 Aktywny' : '🔴 Nieaktywny'}
+                  <span className="badge" style={{
+                    background: beacon.is_online 
+                      ? 'linear-gradient(135deg, #198754 0%, #146c43 100%)'
+                      : 'linear-gradient(135deg, #c82333 0%, #a01e2a 100%)',
+                    color: 'white',
+                    marginBottom: '0.5rem'
+                  }}>
+                    <i className={beacon.is_online ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}></i> {beacon.is_online ? 'Aktywny' : 'Nieaktywny'}
                   </span>
-                  <div className="small mt-1">
-                    Bateria: {beacon.battery_percent?.toFixed(0)}%
+                  <div className="small mt-1" style={{ color: '#d0d0d0' }}>
+                    <i className="bi-battery-half"></i> Bateria: {beacon.battery_percent?.toFixed(0)}%
                   </div>
-                  <div className="small">
-                    Sygnał: {beacon.signal_quality?.toFixed(0)}%
+                  <div className="small" style={{ color: '#d0d0d0' }}>
+                    <i className="bi-signal"></i> Sygnał: {beacon.signal_quality?.toFixed(0)}%
                   </div>
-                  <div className="small">
-                    Tagi: {beacon.tags_in_range}
+                  <div className="small" style={{ color: '#d0d0d0' }}>
+                    <i className="bi-tags"></i> Tagi: {beacon.tags_in_range}
                   </div>
                 </div>
               </div>

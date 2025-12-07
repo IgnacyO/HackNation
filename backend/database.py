@@ -39,9 +39,15 @@ def migrate_db():
         # Add on_mission column if it doesn't exist
         if 'on_mission' not in columns:
             with engine.connect() as conn:
-                conn.execute(text('ALTER TABLE firefighters ADD COLUMN on_mission BOOLEAN DEFAULT 0'))
+                conn.execute(text('ALTER TABLE firefighters ADD COLUMN on_mission BOOLEAN DEFAULT 1'))
                 conn.commit()
             print("Added 'on_mission' column to firefighters table")
+        else:
+            # Update default value for existing column (set all existing to True)
+            with engine.connect() as conn:
+                conn.execute(text('UPDATE firefighters SET on_mission = 1 WHERE on_mission IS NULL OR on_mission = 0'))
+                conn.commit()
+            print("Updated existing firefighters to be on mission by default")
         
         # Add team column if it doesn't exist
         if 'team' not in columns:

@@ -23,8 +23,20 @@ function FirefighterDetail({ firefighterId, onClose }) {
 
   if (loading) {
     return (
-      <div className="firefighter-detail p-3 bg-light border-bottom">
-        <div className="spinner-border spinner-border-sm" role="status">
+      <div className="firefighter-detail" style={{
+        position: 'absolute',
+        top: '10px',
+        right: '10px',
+        zIndex: 1000,
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+        border: '2px solid #c82333',
+        borderRadius: '8px',
+        padding: '1rem',
+        maxWidth: '320px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
+        color: '#f5f5f5'
+      }}>
+        <div className="spinner-border spinner-border-sm" role="status" style={{ color: '#c82333' }}>
           <span className="visually-hidden">Ładowanie...</span>
         </div>
       </div>
@@ -59,37 +71,83 @@ function FirefighterDetail({ firefighterId, onClose }) {
   }
 
   return (
-    <div className="firefighter-detail p-3 bg-light border-bottom">
-      <div className="d-flex justify-content-between align-items-start mb-3">
-        <h6 className="mb-0">Panel parametrów</h6>
-        <button className="btn btn-sm btn-close" onClick={onClose}></button>
+    <div className="firefighter-detail" style={{
+      position: 'absolute',
+      top: '10px',
+      right: '10px',
+      zIndex: 1000,
+      background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+      border: '2px solid #c82333',
+      borderRadius: '8px',
+      padding: '1rem',
+      maxWidth: '320px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
+      color: '#f5f5f5',
+      fontSize: '0.9rem',
+      animation: 'fadeIn 0.3s ease-out'
+    }}>
+      <div className="d-flex justify-content-between align-items-start mb-2">
+        <h6 className="mb-0" style={{ color: '#f5f5f5', fontSize: '1rem' }}>Panel parametrów</h6>
+        <button 
+          className="btn btn-sm btn-close btn-close-white" 
+          onClick={onClose}
+          style={{ filter: 'brightness(0) invert(1)', opacity: '0.8' }}
+        ></button>
       </div>
       {data && (
-        <div className="row g-2">
-          {/* Tętno */}
-          {data.vitals && data.vitals.heart_rate !== null && (
-            <div className="col-6">
-              <div className="small text-muted">Tętno</div>
-              <div className="fw-bold">{data.vitals.heart_rate} BPM</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          {/* Tętno i Bateria w jednym rzędzie */}
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            {/* Tętno */}
+            <div style={{ flex: 1 }}>
+              <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Tętno</div>
+              <div className="fw-bold" style={{ color: '#f5f5f5' }}>
+                {data.vitals && data.vitals.heart_rate !== null && data.vitals.heart_rate !== undefined
+                  ? `${data.vitals.heart_rate} BPM`
+                  : 'N/A'}
+              </div>
             </div>
-          )}
-          
-          {/* Bateria */}
-          {data.vitals && data.vitals.battery_level !== null && (
-            <div className="col-6">
-              <div className="small text-muted">Bateria</div>
-              <div className="fw-bold">{data.vitals.battery_level.toFixed(0)}%</div>
+            
+            {/* Bateria - zawsze wyświetlana */}
+            <div style={{ flex: 1 }}>
+              <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Bateria</div>
+              <div className="fw-bold" style={{ 
+                color: data.vitals && data.vitals.battery_level !== null && data.vitals.battery_level !== undefined
+                  ? (data.vitals.battery_level < 20 ? '#c82333' : data.vitals.battery_level < 50 ? '#ffc107' : '#198754')
+                  : '#999999',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.25rem'
+              }}>
+                {data.vitals && data.vitals.battery_level !== null && data.vitals.battery_level !== undefined
+                  ? (
+                    <>
+                      {data.vitals.battery_level.toFixed(0)}% <i className="bi-battery-half"></i>
+                    </>
+                  )
+                  : (
+                    <>
+                      <i className="bi-question-circle"></i> Nieznana
+                    </>
+                  )}
+              </div>
             </div>
-          )}
+          </div>
           
           {/* Stan ruchu */}
-          <div className="col-12 mt-2">
-            <div className="small text-muted">Stan ruchu</div>
-            <div className={`fw-bold ${data.movement_status === 'bezruch' ? 'text-danger' : 'text-success'}`}>
-              {data.movement_status === 'bezruch' ? '🔴 Bezruch' : '🟢 Ruch'}
+          <div>
+            <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Stan ruchu</div>
+            <div className="fw-bold" style={{ 
+              color: data.movement_status === 'bezruch' ? '#c82333' : '#198754',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem'
+            }}>
+              <i className={data.movement_status === 'bezruch' ? 'bi-exclamation-circle-fill' : 'bi-check-circle-fill'}></i>
+              {data.movement_status === 'bezruch' ? 'Bezruch' : 'Ruch'}
             </div>
             {data.time_stationary > 0 && (
-              <div className="small text-muted mt-1">
+              <div className="small" style={{ color: '#999999', marginTop: '0.25rem' }}>
                 Czas bezruchu: {formatTime(data.time_stationary)}
               </div>
             )}
@@ -97,26 +155,32 @@ function FirefighterDetail({ firefighterId, onClose }) {
           
           {/* Beacon */}
           {data.beacon ? (
-            <div className="col-12 mt-2">
-              <div className="small text-muted">Ostatni beacon</div>
-              <div className="small">{data.beacon.name} ({data.beacon.distance}m)</div>
+            <div>
+              <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Ostatni beacon</div>
+              <div className="small" style={{ color: '#d0d0d0' }}>
+                <i className="bi-broadcast"></i> {data.beacon.name} ({data.beacon.distance}m)
+              </div>
             </div>
           ) : (
-            <div className="col-12 mt-2">
-              <div className="small text-muted">Brak beaconu w zasięgu</div>
+            <div>
+              <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Ostatni beacon</div>
+              <div className="small" style={{ color: '#999999' }}>Brak beaconu w zasięgu</div>
             </div>
           )}
           
           {/* Last Position */}
           {data.last_position && (
-            <div className="col-12 mt-2">
-              <div className="small text-muted">Ostatnia pozycja</div>
-              <div className="small">
-                <div>📍 Piętro: {data.last_position.floor}</div>
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+            <div>
+              <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Ostatnia pozycja</div>
+              <div className="small" style={{ color: '#d0d0d0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <i className="bi-geo-alt-fill" style={{ color: '#c82333' }}></i>
+                  Piętro: {data.last_position.floor}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: '#999999', marginTop: '0.25rem' }}>
                   {data.last_position.latitude.toFixed(6)}, {data.last_position.longitude.toFixed(6)}
                 </div>
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#999999' }}>
                   {formatDateTime(data.last_position.timestamp)}
                 </div>
               </div>
@@ -125,13 +189,15 @@ function FirefighterDetail({ firefighterId, onClose }) {
           
           {/* Last Contact Time */}
           {data.last_contact && data.last_contact.seconds_ago !== null && (
-            <div className="col-12 mt-2">
-              <div className="small text-muted">Ostatni kontakt</div>
-              <div className={`small fw-bold ${data.last_contact.seconds_ago > 60 ? 'text-warning' : data.last_contact.seconds_ago > 300 ? 'text-danger' : 'text-success'}`}>
+            <div>
+              <div className="small" style={{ color: '#999999', marginBottom: '0.25rem' }}>Ostatni kontakt</div>
+              <div className={`small fw-bold`} style={{ 
+                color: data.last_contact.seconds_ago > 300 ? '#c82333' : data.last_contact.seconds_ago > 60 ? '#ffc107' : '#198754'
+              }}>
                 {formatTime(data.last_contact.seconds_ago)} temu
               </div>
               {data.last_contact.timestamp && (
-                <div className="text-muted" style={{ fontSize: '0.75rem' }}>
+                <div style={{ fontSize: '0.75rem', color: '#999999', marginTop: '0.25rem' }}>
                   {formatDateTime(data.last_contact.timestamp)}
                 </div>
               )}

@@ -136,11 +136,26 @@ function TeamsView({ onFirefighterClick }) {
   }
 
   return (
-    <div className="teams-view" style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <div className="teams-view" style={{ 
+      width: '100%', 
+      height: '100%', 
+      display: 'flex', 
+      flexDirection: 'column', 
+      overflow: 'hidden',
+      background: '#0f0f0f'
+    }}>
       {/* Controls */}
-      <div className="p-3 border-bottom bg-light" style={{ flexShrink: 0, width: '100%' }}>
+      <div className="p-3 border-bottom" style={{ 
+        flexShrink: 0, 
+        width: '100%',
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+        borderBottom: '2px solid #333333'
+      }}>
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <h4 className="mb-0">Zespoły - Widok na mapie</h4>
+          <h4 className="mb-0" style={{ color: '#f5f5f5', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <i className="bi-diagram-3-fill" style={{ color: '#c82333' }}></i>
+            Zespoły - Widok na mapie
+          </h4>
         </div>
         <div className="row g-2">
           <div className="col-md-3">
@@ -221,9 +236,16 @@ function TeamsView({ onFirefighterClick }) {
       </div>
 
       {/* Team Legend - Scrollable */}
-      <div className="border-top bg-light" style={{ maxHeight: '200px', overflowY: 'auto', width: '100%', flexShrink: 0 }}>
+      <div className="border-top" style={{ 
+        maxHeight: '200px', 
+        overflowY: 'auto', 
+        width: '100%', 
+        flexShrink: 0,
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+        borderTop: '2px solid #333333'
+      }}>
         <div className="p-3">
-          <h6 className="mb-2">Legenda zespołów (kliknij, aby filtrować)</h6>
+          <h6 className="mb-2" style={{ color: '#f5f5f5' }}>Legenda zespołów (kliknij, aby filtrować)</h6>
           <div className="d-flex flex-wrap gap-2">
             {teams.map(team => {
               const teamFirefighters = teamGroups[team]

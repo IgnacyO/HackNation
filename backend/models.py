@@ -13,7 +13,7 @@ class Firefighter(Base):
     name = Column(String(100), nullable=False)
     badge_number = Column(String(50), unique=True)
     team = Column(String(50))  # Team/unit name (e.g., 'RIT', 'Engine 1', etc.)
-    on_mission = Column(Boolean, default=False)
+    on_mission = Column(Boolean, default=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     
     # Relationships

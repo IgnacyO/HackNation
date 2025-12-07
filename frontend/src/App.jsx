@@ -11,6 +11,7 @@ import BeaconsView from './components/BeaconsView'
 import BlackBoxView from './components/BlackBoxView'
 import TeamsView from './components/TeamsView'
 import Navigation from './components/Navigation'
+import RFIDScanner from './components/RFIDScanner'
 import { api } from './utils/api'
 import './App.css'
 
@@ -129,6 +130,10 @@ function App() {
               />
             </div>
             <div className="map-container">
+              <RFIDScanner onScanSuccess={() => {
+                // Refresh firefighters list after successful scan
+                loadData()
+              }} />
               {selectedFirefighter ? (
                 <FirefighterDetail
                   firefighterId={selectedFirefighter}
@@ -182,7 +187,7 @@ function App() {
 
   return (
     <div className="app-container">
-      <Alerts alerts={alerts} alertTypes={ALERT_TYPES} />
+      <Alerts alerts={alerts} alertTypes={ALERT_TYPES} firefighters={firefighters} />
       <Navigation currentView={currentView} onViewChange={handleViewChange} />
       <div className="main-content">
         {renderView()}

@@ -1,14 +1,100 @@
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-100%);
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    max-height: 200px;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px var(--accent-red-glow);
+  }
+  50% {
+    box-shadow: 0 0 20px var(--accent-red-glow), 0 0 30px var(--accent-red-glow);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Base Styles */
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
   width: 100%;
+  background-color: var(--bg-primary);
+  animation: fadeIn 0.5s ease-out;
 }
 
 .main-content {
   display: flex;
   flex: 1;
   overflow: hidden;
+  background-color: var(--bg-primary);
 }
 
 /* Enable scrolling for view pages */
@@ -18,6 +104,9 @@
   flex: 1;
   overflow-y: auto;
   height: 100%;
+  background-color: var(--bg-primary);
+  padding: 20px;
+  animation: fadeIn 0.4s ease-out;
 }
 
 .teams-view {
@@ -26,15 +115,24 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background-color: var(--bg-primary);
+  animation: fadeIn 0.4s ease-out;
 }
 
 .sidebar {
   width: 350px;
-  background-color: #f8f9fa;
-  border-right: 1px solid #dee2e6;
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+  border-right: 2px solid var(--border-color);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
+  box-shadow: var(--shadow-md);
+  animation: slideInLeft 0.4s ease-out;
+  transition: border-color 0.3s ease;
+}
+
+.sidebar:hover {
+  border-right-color: var(--accent-red);
 }
 
 .map-container {
@@ -42,6 +140,8 @@
   display: flex;
   flex-direction: column;
   position: relative;
+  background-color: var(--bg-secondary);
+  animation: fadeIn 0.5s ease-out;
 }
 
 .map-container > div:first-child {
@@ -50,5 +150,215 @@
 
 .cursor-pointer {
   cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.cursor-pointer:hover {
+  transform: scale(1.05);
+}
+
+/* Card Styles */
+.card {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.card:hover {
+  border-color: var(--accent-red);
+  box-shadow: var(--shadow-red);
+  transform: translateY(-2px);
+}
+
+.card-header {
+  background-color: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+/* Button Styles */
+.btn {
+  transition: all 0.3s ease;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background-color: var(--accent-red);
+  border-color: var(--accent-red);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-red-dark);
+  border-color: var(--accent-red-dark);
+  box-shadow: var(--shadow-red);
+  transform: translateY(-2px);
+}
+
+.btn-outline-primary {
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.btn-outline-primary:hover {
+  background-color: var(--accent-red);
+  border-color: var(--accent-red);
+  color: white;
+  box-shadow: var(--shadow-red);
+}
+
+.btn-danger {
+  background-color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.btn-danger:hover {
+  background-color: var(--accent-red-dark);
+  box-shadow: var(--shadow-red);
+}
+
+/* Form Controls */
+.form-control,
+.form-select {
+  background-color: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.form-control:focus,
+.form-select:focus {
+  background-color: var(--bg-tertiary);
+  border-color: var(--accent-red);
+  color: var(--text-primary);
+  box-shadow: 0 0 0 0.2rem var(--accent-red-glow);
+}
+
+.form-control::placeholder {
+  color: var(--text-muted);
+}
+
+/* Badge Styles */
+.badge {
+  padding: 0.4em 0.6em;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.badge:hover {
+  transform: scale(1.1);
+}
+
+/* Alert Styles */
+.alert {
+  border-radius: 8px;
+  border: none;
+  animation: slideInRight 0.4s ease-out;
+  box-shadow: var(--shadow-md);
+}
+
+.alert-danger {
+  background: linear-gradient(135deg, var(--accent-red) 0%, var(--accent-red-dark) 100%);
+  color: white;
+  animation: slideInRight 0.4s ease-out, pulse 2s infinite;
+}
+
+.alert-warning {
+  background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+  color: #1a1a1a;
+}
+
+/* Table Styles */
+.table {
+  color: var(--text-primary);
+}
+
+.table-dark {
+  --bs-table-bg: var(--bg-secondary);
+  --bs-table-border-color: var(--border-color);
+  --bs-table-hover-bg: var(--bg-hover);
+  --bs-table-hover-color: var(--text-primary);
+}
+
+.table tbody tr {
+  transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+  background-color: var(--bg-hover);
+  transform: scale(1.01);
+}
+
+/* List Group */
+.list-group-item {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.list-group-item:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-red);
+  transform: translateX(5px);
+}
+
+/* Pagination */
+.pagination .page-link {
+  background-color: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  transition: all 0.2s ease;
+}
+
+.pagination .page-link:hover {
+  background-color: var(--accent-red);
+  border-color: var(--accent-red);
+  color: white;
+  transform: translateY(-2px);
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+/* Critical/Endangered Styles */
+.endangered {
+  background-color: rgba(220, 53, 69, 0.15) !important;
+  border-left: 4px solid var(--accent-red) !important;
+  animation: pulse 2s infinite;
+}
+
+.endangered:hover {
+  background-color: rgba(220, 53, 69, 0.25) !important;
+  box-shadow: var(--shadow-red);
+}
+
+/* Loading Animation */
+.loading {
+  position: relative;
+  overflow: hidden;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(220, 53, 69, 0.2),
+    transparent
+  );
+  animation: shimmer 2s infinite;
 }
 

@@ -56,8 +56,20 @@ function HeartRateChart({ firefighterId }) {
 
   if (vitalsData.length === 0) {
     return (
-      <div className="heart-rate-chart-container p-3 bg-light border-top">
-        <div className="text-center text-muted">Ładowanie danych...</div>
+      <div className="heart-rate-chart-container" style={{
+        position: 'absolute',
+        bottom: '10px',
+        left: '10px',
+        zIndex: 1000,
+        background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+        border: '2px solid #c82333',
+        borderRadius: '8px',
+        padding: '0.75rem',
+        width: '300px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
+        color: '#f5f5f5'
+      }}>
+        <div className="text-center" style={{ color: '#999999', fontSize: '0.9rem' }}>Ładowanie danych...</div>
       </div>
     )
   }
@@ -110,23 +122,36 @@ function HeartRateChart({ firefighterId }) {
   }
 
   return (
-    <div className="heart-rate-chart-container p-3 bg-light border-top">
+    <div className="heart-rate-chart-container" style={{
+      position: 'absolute',
+      bottom: '10px',
+      left: '10px',
+      zIndex: 1000,
+      background: 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+      border: '2px solid #c82333',
+      borderRadius: '8px',
+      padding: '0.75rem',
+      width: '280px',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.6)',
+      color: '#f5f5f5',
+      animation: 'fadeIn 0.3s ease-out'
+    }}>
       <div className="d-flex justify-content-between align-items-center mb-2">
-        <h6 className="mb-0">Tętno - Strażak ID: {firefighterId}</h6>
+        <h6 className="mb-0" style={{ color: '#f5f5f5', fontSize: '0.9rem' }}>Tętno</h6>
         {currentBPM && (
           <div className="d-flex align-items-center gap-2">
             <div className="heart-rate-pulse" style={{
-              width: '20px',
-              height: '20px',
+              width: '12px',
+              height: '12px',
               borderRadius: '50%',
-              backgroundColor: 'red',
+              backgroundColor: '#c82333',
               animation: 'pulse 1s infinite'
             }}></div>
-            <strong className="text-danger">{currentBPM} BPM</strong>
+            <strong style={{ color: '#c82333', fontSize: '0.9rem' }}>{currentBPM} BPM</strong>
           </div>
         )}
       </div>
-      <div style={{ height: '200px' }}>
+      <div style={{ height: '120px' }}>
         <Line data={chartData} options={chartOptions} />
       </div>
       

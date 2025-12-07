@@ -107,7 +107,17 @@ function FirefightersView({ onFirefighterClick }) {
     <div className="firefighters-view p-4">
       <div className="mb-3">
         <div className="d-flex justify-content-between align-items-center mb-2">
-          <h4>Wszyscy strażacy ({filtered.length})</h4>
+          <h4 style={{ 
+            color: '#f5f5f5',
+            fontWeight: 'bold',
+            letterSpacing: '1px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem'
+          }}>
+            <i className="bi-people-fill" style={{ color: '#c82333' }}></i>
+            Wszyscy strażacy ({filtered.length})
+          </h4>
         </div>
         <div className="row g-2">
           <div className="col-md-3">
@@ -171,59 +181,134 @@ function FirefightersView({ onFirefighterClick }) {
       </div>
       <div className="list-group">
         {paginatedFirefighters.length === 0 ? (
-          <div className="list-group-item text-muted">Brak strażaków</div>
+          <div className="list-group-item" style={{ color: '#999999', textAlign: 'center', padding: '2rem' }}>
+            Brak strażaków
+          </div>
         ) : (
           paginatedFirefighters.map((ff) => {
             const isDangerous = criticalFirefighterIds.has(ff.id)
             return (
               <div
                 key={ff.id}
-                className={`list-group-item ${isDangerous ? 'bg-danger bg-opacity-10 border-danger border-2' : ''}`}
+                className="list-group-item"
+                style={{
+                  background: isDangerous 
+                    ? 'linear-gradient(135deg, rgba(200, 35, 51, 0.15) 0%, rgba(200, 35, 51, 0.05) 100%)'
+                    : 'linear-gradient(135deg, #1a1a1a 0%, #252525 100%)',
+                  border: isDangerous ? '2px solid #c82333' : '1px solid #333333',
+                  borderRadius: '8px',
+                  marginBottom: '0.5rem',
+                  color: '#f5f5f5',
+                  transition: 'all 0.3s ease',
+                  animation: 'fadeIn 0.4s ease-out'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateX(5px)'
+                  e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateX(0)'
+                  e.currentTarget.style.boxShadow = 'none'
+                }}
               >
                 <div className="d-flex justify-content-between align-items-start">
                   <div className="flex-grow-1">
                     <div className="d-flex align-items-center gap-2 mb-1">
-                      <strong className={isDangerous ? 'text-danger' : ''}>
+                      <strong style={{ color: isDangerous ? '#c82333' : '#f5f5f5' }}>
                         {ff.name || 'Brak imienia'}
                       </strong>
-                      {isDangerous && <span className="badge bg-danger">⚠️ ZAGROŻONY</span>}
-                      {ff.on_mission && <span className="badge bg-primary">Na misji</span>}
-                      {ff.team && <span className="badge bg-secondary">{ff.team}</span>}
+                      {isDangerous && (
+                        <span className="badge" style={{
+                          background: 'linear-gradient(135deg, #c82333 0%, #a01e2a 100%)',
+                          color: 'white'
+                        }}>
+                          <i className="bi-exclamation-triangle-fill"></i> ZAGROŻONY
+                        </span>
+                      )}
+                      {ff.on_mission && (
+                        <span className="badge" style={{
+                          background: 'linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%)',
+                          color: 'white'
+                        }}>
+                          Na misji
+                        </span>
+                      )}
+                      {ff.team && (
+                        <span className="badge" style={{
+                          background: '#333333',
+                          color: '#d0d0d0'
+                        }}>
+                          {ff.team}
+                        </span>
+                      )}
                     </div>
-                    <div className="small text-muted">ID: {ff.badge_number}</div>
+                    <div className="small" style={{ color: '#999999' }}>ID: {ff.badge_number}</div>
                     {ff.time_stationary > 0 && (
-                      <div className="small text-warning">Bezruch: {ff.time_stationary.toFixed(1)}min</div>
+                      <div className="small" style={{ color: '#ffc107' }}>
+                        Bezruch: {ff.time_stationary.toFixed(1)}min
+                      </div>
                     )}
                   </div>
                   <div className="text-end">
                     {ff.vitals && (
                       <>
                         <div className="mb-1">
-                          <strong>{ff.vitals.heart_rate || 'N/A'}</strong> <span className="small">BPM</span>
+                          <strong style={{ color: '#f5f5f5' }}>{ff.vitals.heart_rate || 'N/A'}</strong> 
+                          <span className="small" style={{ color: '#999999' }}> BPM</span>
                         </div>
-                        <div className={`small ${ff.vitals.battery_level !== null && ff.vitals.battery_level !== undefined 
-                          ? (ff.vitals.battery_level < 20 ? 'text-danger' : ff.vitals.battery_level < 50 ? 'text-warning' : 'text-success')
-                          : 'text-muted'}`}>
+                        <div className="small" style={{
+                          color: ff.vitals.battery_level !== null && ff.vitals.battery_level !== undefined 
+                            ? (ff.vitals.battery_level < 20 ? '#c82333' : ff.vitals.battery_level < 50 ? '#ffc107' : '#198754')
+                            : '#999999',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                          justifyContent: 'flex-end'
+                        }}>
                           {ff.vitals.battery_level !== null && ff.vitals.battery_level !== undefined 
-                            ? `${ff.vitals.battery_level.toFixed(0)}% 🔋`
-                            : '❓ Bateria nieznana'}
+                            ? (
+                              <>
+                                {ff.vitals.battery_level.toFixed(0)}% <i className="bi-battery-half"></i>
+                              </>
+                            )
+                            : (
+                              <>
+                                <i className="bi-question-circle"></i> Bateria nieznana
+                              </>
+                            )}
                         </div>
                       </>
                     )}
                     {(!ff.vitals || (ff.vitals.battery_level === null && ff.vitals.battery_level === undefined)) && (
-                      <div className="small text-muted">❓ Brak danych</div>
+                      <div className="small" style={{ color: '#999999' }}>
+                        <i className="bi-question-circle"></i> Brak danych
+                      </div>
                     )}
                   </div>
                   <div className="ms-2">
                     <button
-                      className="btn btn-sm btn-primary"
+                      className="btn btn-sm"
                       onClick={(e) => {
                         e.stopPropagation()
                         onFirefighterClick(ff.id)
                       }}
                       title="Pokaż na mapie"
+                      style={{
+                        background: 'linear-gradient(135deg, #c82333 0%, #a01e2a 100%)',
+                        border: 'none',
+                        color: 'white',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.1)'
+                        e.target.style.boxShadow = '0 2px 8px rgba(200, 35, 51, 0.5)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)'
+                        e.target.style.boxShadow = 'none'
+                      }}
                     >
-                      🗺️ Mapa
+                      <i className="bi-map"></i> Mapa
                     </button>
                   </div>
                 </div>

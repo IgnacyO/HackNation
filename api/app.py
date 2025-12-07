@@ -653,6 +653,189 @@ def export_blackbox():
         db.close()
 
 
+@app.route('/api/firefighters/by-badge/<badge_number>', methods=['GET'])
+def get_firefighter_by_badge(badge_number):
+    """Get firefighter by badge number"""
+    db = SessionLocal()
+    try:
+        firefighter = db.query(Firefighter).filter(
+            Firefighter.badge_number == badge_number
+        ).first()
+        
+        if not firefighter:
+            return jsonify({'error': 'Firefighter not found'}), 404
+        
+        return jsonify({
+            'id': firefighter.id,
+            'name': firefighter.name,
+            'badge_number': firefighter.badge_number,
+            'team': getattr(firefighter, 'team', None) or '',
+            'on_mission': getattr(firefighter, 'on_mission', True)
+        })
+    finally:
+        db.close()
+
+
+@app.route('/api/firefighters/<int:firefighter_id>/mission', methods=['POST'])
+def add_firefighter_to_mission(firefighter_id):
+    """Add firefighter to mission (set on_mission to True)"""
+    db = SessionLocal()
+    try:
+        firefighter = db.query(Firefighter).filter(
+            Firefighter.id == firefighter_id
+        ).first()
+        
+        if not firefighter:
+            return jsonify({'error': 'Firefighter not found'}), 404
+        
+        firefighter.on_mission = True
+        db.commit()
+        
+        return jsonify({
+            'id': firefighter.id,
+            'name': firefighter.name,
+            'badge_number': firefighter.badge_number,
+            'on_mission': True,
+            'message': 'Firefighter added to mission'
+        })
+    except Exception as e:
+        db.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        db.close()
+
+
+@app.route('/api/firefighters/by-badge/<badge_number>/mission', methods=['POST'])
+def add_firefighter_to_mission_by_badge(badge_number):
+    """Add firefighter to mission by badge number"""
+    db = SessionLocal()
+    try:
+        firefighter = db.query(Firefighter).filter(
+            Firefighter.badge_number == badge_number
+        ).first()
+        
+        if not firefighter:
+            return jsonify({'error': 'Firefighter not found'}), 404
+        
+        firefighter.on_mission = True
+        db.commit()
+        
+        return jsonify({
+            'id': firefighter.id,
+            'name': firefighter.name,
+            'badge_number': firefighter.badge_number,
+            'on_mission': True,
+            'message': 'Firefighter added to mission'
+        })
+    except Exception as e:
+        db.rollback()
+        return jsonify({'error': str(e)}), 500
+    finally:
+        db.close()
+
+
+@app.route('/api/rfid/ports', methods=['GET'])
+def get_serial_ports():
+    """Get list of available serial ports"""
+    try:
+        import serial.tools.list_ports
+        ports = serial.tools.list_ports.comports()
+        port_list = [{'port': port.device, 'description': port.description} for port in ports]
+        return jsonify(port_list)
+    except ImportError:
+        return jsonify({'error': 'pyserial not installed'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# Store active serial connections
+active_serial_connections = {}
+
+@app.route('/api/rfid/scan', methods=['POST'])
+def scan_rfid():
+    """Scan RFID from serial port"""
+    try:
+        import serial
+        data = request.get_json()
+        port = data.get('port')
+        timeout = data.get('timeout', 1)  # seconds
+        
+        if not port:
+            return jsonify({'error': 'Port not specified'}), 400
+        
+        # Open serial connection if not already open
+        if port not in active_serial_connections:
+            try:
+                ser = serial.Serial(port, 9600, timeout=timeout)
+                active_serial_connections[port] = ser
+            except Exception as e:
+                return jsonify({'error': f'Failed to open port: {str(e)}'}), 500
+        
+        ser = active_serial_connections[port]
+        
+        # Read from serial port
+        if ser.in_waiting > 0:
+            # Read available data
+            badge_number = ser.readline().decode('utf-8').strip()
+            
+            # Try to find firefighter by badge number
+            db = SessionLocal()
+            try:
+                firefighter = db.query(Firefighter).filter(
+                    Firefighter.badge_number == badge_number
+                ).first()
+                
+                if not firefighter:
+                    return jsonify({
+                        'badge_number': badge_number,
+                        'found': False,
+                        'error': 'Firefighter not found'
+                    }), 404
+                
+                # Add to mission
+                firefighter.on_mission = True
+                db.commit()
+                
+                return jsonify({
+                    'badge_number': badge_number,
+                    'found': True,
+                    'firefighter': {
+                        'id': firefighter.id,
+                        'name': firefighter.name,
+                        'badge_number': firefighter.badge_number,
+                        'team': getattr(firefighter, 'team', None) or '',
+                        'on_mission': True
+                    },
+                    'message': 'Firefighter added to mission'
+                })
+            finally:
+                db.close()
+        else:
+            return jsonify({
+                'badge_number': None,
+                'found': False,
+                'error': 'No data available on serial port'
+            }), 404
+            
+    except ImportError:
+        return jsonify({'error': 'pyserial not installed'}), 500
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/rfid/close/<port>', methods=['POST'])
+def close_serial_port(port):
+    """Close serial port connection"""
+    try:
+        if port in active_serial_connections:
+            active_serial_connections[port].close()
+            del active_serial_connections[port]
+            return jsonify({'message': f'Port {port} closed'})
+        return jsonify({'error': 'Port not open'}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
 
