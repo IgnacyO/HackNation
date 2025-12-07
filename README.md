@@ -52,21 +52,75 @@ Locero/
 - Node.js 18+ (z npm)
 - npm lub yarn
 
-### Backend
+### Krok 1: Przygotowanie środowiska Python (Backend)
 
-1. Zainstaluj zależności Python:
+1. **Utwórz wirtualne środowisko Python** (zalecane):
+
+**Windows:**
+```bash
+python -m venv venv
+```
+
+**Linux/Mac:**
+```bash
+python3 -m venv venv
+```
+
+2. **Aktywuj wirtualne środowisko**:
+
+**Windows (PowerShell):**
+```bash
+.\venv\Scripts\Activate.ps1
+```
+
+**Windows (CMD):**
+```bash
+venv\Scripts\activate.bat
+```
+
+**Linux/Mac:**
+```bash
+source venv/bin/activate
+```
+
+Po aktywacji w terminalu powinno pojawić się `(venv)` przed ścieżką.
+
+3. **Zainstaluj zależności Python**:
 ```bash
 pip install -r requirements.txt
 ```
 
-2. Uruchom API (automatycznie inicjalizuje bazę danych i uruchamia symulator):
+### Krok 2: Przygotowanie Frontend
 
-**Opcja 1** - Z katalogu głównego (zalecane):
+1. **Przejdź do katalogu frontend**:
+```bash
+cd frontend
+```
+
+2. **Zainstaluj zależności Node.js**:
+```bash
+npm install
+```
+
+3. **Wróć do katalogu głównego**:
+```bash
+cd ..
+```
+
+### Krok 3: Uruchomienie aplikacji
+
+Aplikacja wymaga uruchomienia dwóch serwerów jednocześnie:
+
+#### Terminal 1 - Backend (API)
+
+1. **Upewnij się, że venv jest aktywne** (powinno być `(venv)` w terminalu)
+
+2. **Uruchom API** (z katalogu głównego projektu):
 ```bash
 python run_api.py
 ```
 
-**Opcja 2** - Z katalogu api:
+**Alternatywnie** (z katalogu api):
 ```bash
 cd api
 python app.py
@@ -74,20 +128,57 @@ python app.py
 
 API będzie dostępne pod adresem: `http://localhost:5000`
 
-### Frontend
+**Ważne:** Nie zamykaj tego terminala! API musi działać w tle.
 
-1. Zainstaluj zależności:
+#### Terminal 2 - Frontend
+
+1. **Otwórz nowy terminal** (venv nie jest potrzebne dla frontendu)
+
+2. **Przejdź do katalogu frontend**:
 ```bash
 cd frontend
-npm install
 ```
 
-2. Uruchom serwer deweloperski:
+3. **Uruchom serwer deweloperski**:
 ```bash
 npm run dev
 ```
 
-Frontend będzie dostępny pod adresem: `http://localhost:3000`
+Frontend będzie dostępny pod adresem: `http://localhost:5173` (lub inny port, jeśli 5173 jest zajęty)
+
+**Ważne:** Nie zamykaj tego terminala! Frontend musi działać w tle.
+
+### Krok 4: Otwarcie aplikacji
+
+1. Otwórz przeglądarkę
+2. Przejdź do adresu wyświetlonego w terminalu frontendu (zwykle `http://localhost:5173`)
+
+## Szybki start (skrócona wersja)
+
+```bash
+# 1. Utwórz i aktywuj venv
+python -m venv venv
+.\venv\Scripts\Activate.ps1  # Windows PowerShell
+# lub
+venv\Scripts\activate.bat     # Windows CMD
+# lub
+source venv/bin/activate     # Linux/Mac
+
+# 2. Zainstaluj zależności Python
+pip install -r requirements.txt
+
+# 3. Zainstaluj zależności Node.js
+cd frontend
+npm install
+cd ..
+
+# 4. Terminal 1 - Uruchom backend (z venv aktywnym)
+python run_api.py
+
+# 5. Terminal 2 - Uruchom frontend (w nowym terminalu)
+cd frontend
+npm run dev
+```
 
 ## Funkcjonalności
 
@@ -123,25 +214,50 @@ Frontend będzie dostępny pod adresem: `http://localhost:3000`
 - `explosive_gas` (critical) - Gaz wybuchowy (LEL)
 - `high_temperature` (warning) - Wysoka temperatura
 
-## Uruchomienie
+## Rozwiązywanie problemów
 
-1. **Terminal 1** - Backend:
+### Problem: "ModuleNotFoundError" lub "No module named 'flask'"
+**Rozwiązanie:** Upewnij się, że venv jest aktywne i zależności są zainstalowane:
 ```bash
-python run_api.py
-```
-(lub `cd api && python app.py`)
-
-2. **Terminal 2** - Frontend:
-```bash
-cd frontend
-npm run dev
+# Sprawdź czy venv jest aktywne (powinno być (venv) w terminalu)
+# Jeśli nie, aktywuj ponownie:
+.\venv\Scripts\Activate.ps1  # Windows PowerShell
+# Następnie zainstaluj zależności:
+pip install -r requirements.txt
 ```
 
-3. Otwórz przeglądarkę: `http://localhost:3000`
+### Problem: "Port 5000 already in use"
+**Rozwiązanie:** Zamknij inne aplikacje używające portu 5000 lub zmień port w `run_api.py`:
+```python
+app.run(debug=True, port=5001)  # Zmień na inny port
+```
+
+### Problem: "Port 5173 already in use" (Vite)
+**Rozwiązanie:** Vite automatycznie użyje następnego dostępnego portu. Sprawdź terminal frontendu, aby zobaczyć aktualny adres.
+
+### Problem: "npm: command not found"
+**Rozwiązanie:** Zainstaluj Node.js z https://nodejs.org/
+
+### Problem: Baza danych nie jest tworzona
+**Rozwiązanie:** Upewnij się, że katalog `database/` istnieje i ma uprawnienia do zapisu. Baza danych jest tworzona automatycznie przy pierwszym uruchomieniu API.
 
 ## Uwagi
 
 - Symulator danych automatycznie tworzy przykładowych strażaków i beacony przy pierwszym uruchomieniu
 - Dane są aktualizowane co 1.5 sekundy
 - Baza danych SQLite jest tworzona automatycznie w katalogu `database/`
+- Wszyscy strażacy są domyślnie ustawieni jako aktywni w misji (`on_mission = True`)
+- Skaner RFID dostępny jest w widoku mapy (lewy górny róg) - można użyć trybu "Ręczne" do testowania bez portu COM
+
+## Dezaktywacja venv
+
+Po zakończeniu pracy, możesz dezaktywować wirtualne środowisko:
+```bash
+deactivate
+```
+
+## Struktura portów
+
+- **Backend API**: `http://localhost:5000`
+- **Frontend (Vite)**: `http://localhost:5173` (domyślnie, może się zmienić jeśli port jest zajęty)
 
